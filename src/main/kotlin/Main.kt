@@ -52,6 +52,7 @@ fun main(args: Array<String>) {
             var action = readLine().toString()
             var actionIsValid:Boolean = false;
             actionIsValid = isNotEmpty(action, "Please do not leave the action type empty.")
+            //actions to be selected by corresponding letters
             when(action){
                 "E" -> {
                     authenticated = false
@@ -73,7 +74,6 @@ fun main(args: Array<String>) {
                 "s" -> sendMoneySystem(pin)
                 else -> println("Please enter a valid action.")
             }
-
         }
     }
     printOutro() //this prints the outro of the simple atm
@@ -82,7 +82,9 @@ fun main(args: Array<String>) {
 /*
 ====================================================MAIN FEATURES====================================================
  */
+//===========SHOW BALANCE FEATURE===========
 fun showBalance (pin: String){
+    //prints the customer's balance by looping and checking pin is equal.
     for(customer in customerList){
         if(customer.pin == pin){
             var bal = customer.balance
@@ -90,10 +92,13 @@ fun showBalance (pin: String){
         }
     }
 }
+//===========DEPOSIT FEATURE================
 fun depositSystem (pin: String){
     var depositing: Boolean = true
+    //main loop of depositingSystem
     while(depositing){
         var isValid: Boolean = false
+        //inner loop to check validity of inputs
         while(!isValid){
             printMainFeatureTitle("DEPOSIT")
             print("> Deposit (should not be less than ₱100): ")
@@ -105,7 +110,7 @@ fun depositSystem (pin: String){
                     depositing = false // to exit deposit loop
                 }
             }
-            //if valid still valid and still depositing
+            //if still valid and still depositing
             if(isValid && depositing){
                 isValid = isNumber(value, "Please enter a valid number for Deposit Amount.")
                 if(isValid){
@@ -128,6 +133,7 @@ fun depositSystem (pin: String){
         }
     }
 }
+//===========WITHDRAW FEATURE===============
 fun withdrawSystem (pin: String){
     var withdrawing: Boolean = true
     while(withdrawing){
@@ -170,21 +176,28 @@ fun withdrawSystem (pin: String){
     }
 }
 
+//-variables for send money feature
 var sending: Boolean = true //for sendMoneySystem function
 var sendIsValid: Boolean = false //for confirmation
+//===========SEND MONEY FEATURE=============
 fun sendMoneySystem (pin: String){
     sending = true
     sendIsValid = false
+    //sendMoneySystem main loop
     while(sending){
+        //prints main feature title
         printMainFeatureTitle("SEND MONEY")
+        //get customer logged in data and display
         for(customer in customerList){
             if(customer.pin == pin){
-                println("Sender: ${customer.name} | Account Number: ${customer.accountNumber} | Balance: ₱${customer.balance}")
+                println("Sender: ${customer.name} | Account Number: ${customer.accountNumber} " +
+                        "| Balance: ₱${toCurrency(customer.balance.toString())}")
             }
         }
         var name:String = ""
         var accountNumber:String = ""
         var amount:String = ""
+        // this checks validity of recipient's name and saves to "name" if valid
         if(sending){
             var valueIsValid:Boolean = false
             while(!valueIsValid) {
@@ -198,6 +211,7 @@ fun sendMoneySystem (pin: String){
                 }
             }
         }
+        // this checks validity of recipient's account number and saves to "accountNumber" if valid
         if(sending){
             var valueIsValid:Boolean = false
             while(!valueIsValid) {
@@ -211,6 +225,7 @@ fun sendMoneySystem (pin: String){
                 }
             }
         }
+        // this checks validity of amount to be sent and saves to "amount" if valid
         if(sending){
             var valueIsValid:Boolean = false
             while(!valueIsValid) {
@@ -230,19 +245,28 @@ fun sendMoneySystem (pin: String){
                 }
             }
         }
+        // this checks and compares data inputted and data on var "customerList" list
         if(sending){
-            //?EVERYTHING IS VALID
-            println("Recipient: $name | Account Number: $accountNumber | Amount:  ₱$amount")
+            //?EVERYTHING SHOULD BE VALID
             //check if name and account number exists
             //check if remaining balance is enough to send money
+            //check if account is the one that is logged in
             var recipientIsValid: Boolean = false
+            var isSelf:Boolean = false
             for(customer in customerList){
+                //check if customer exists with the name and accountnumber
                 if(customer.name == name && customer.accountNumber == accountNumber){
                     recipientIsValid = true
+                    //cannot send money to own account or logged in account lol
+                    if(customer.pin == pin){
+                        isSelf = true //set true to stop sending and deducting balance
+                    }
                 }
             }
-            if(recipientIsValid){
+            //sending and deducting block
+            if(recipientIsValid && !isSelf){
                 while(!sendIsValid){
+                    println("Recipient: $name | Account Number: $accountNumber | Amount:  ₱$amount")
                     print("> Send now -> [P] Proceed | [C] Cancel: ")
                     val send = readLine().toString()
                     sendIsValid = isNotEmpty(send, "Please enter [Y] for Yes and [N] for No")
@@ -265,7 +289,12 @@ fun sendMoneySystem (pin: String){
                     }
                 }
             }
-            else{
+            // prints prompt
+            if(isSelf){
+                println("Cannot send money to yourself.")
+            }
+            // another prompt
+            if(!recipientIsValid){
                 println("Recipient with this account number does not exist.")
             }
         }
@@ -344,7 +373,7 @@ fun sendProceed(pin:String, money: Double, name:String, accountNumber:String){
         if(customer.pin == pin){
             val newValue = customer.balance - money
             customerList[customerList.indexOf(customer)].balance = newValue
-            println("You have withdrawn ₱$money!!!\nYour current balance is: ₱$newValue")
+            println("You have sent ₱$money!!!\nYour current balance is: ₱${toCurrency(newValue.toString())}")
         }
         // add to recipient
         else if(customer.name == name && customer.accountNumber == accountNumber){
@@ -400,14 +429,14 @@ fun printMainFeatureTitle(action: String){
  */
 
 var customerList = listOf(
-    Customer("Gark Godwin", "GG-0202-AA", "0000", 20000000000000.2332),
-    Customer("John Paul", "GG-2312-BB","1111", 2332.23),
-    Customer("Brixter", "GG-3214-CC", "2222", 1500.23),
-    Customer("Hanna Leigh","GG-0315-DD", "3333", 20000.23),
+    Customer("Gark Godwin", "GG-0202-AA", "0000", 2000000.2332),
+    Customer("John Paul", "GG-2312-BB","1111", 301020.23),
+    Customer("Brixter", "GG-3214-CC", "2222", 150032.23),
+    Customer("Leigh Anne","GG-0315-DD", "3333", 500300.23),
     Customer("Kenneth", "GG-2313-EE", "4444", 88888.23),
     Customer("Ruffa Mae", "GG-9832-FF", "5555", 191230.23),
     Customer("Francis Karl", "GG-1111-GG", "6666", 132800.23),
-    Customer("Cenecris", "GG-2222-HH", "7777", 1009199.23),
+    Customer("Cene Cris", "GG-2222-HH", "7777", 1009199.23),
     Customer("Miguel Luigi", "GG-3333-II", "8888", 999320.23),
-    Customer("Jaffelamae", "GG-4444-JJ", "9999", 9392887.23),
+    Customer("Jaffe Lamae", "GG-4444-JJ", "9999", 9392887.23),
     )
