@@ -30,7 +30,7 @@ fun main(args: Array<String>) {
                 systemStart = false
             }
         }
-        //AUTHENTICATE PIN
+        //AUTHENTICATE PIN TO ACCESS THE INNER SYSTEM
         if(pinIsValid && systemStart){
             pinIsValid = checkPinValidity(pin)
             if(pinIsValid){
