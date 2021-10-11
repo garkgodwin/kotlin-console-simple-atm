@@ -17,9 +17,9 @@ fun main(args: Array<String>) {
     /*
         MAIN VARIABLES
      */
-    var systemStart: Boolean = true;
-    var authenticated:Boolean = false;
-    var pinIsValid: Boolean = false;
+    var systemStart: Boolean = true
+    var authenticated:Boolean = false
+    var pinIsValid: Boolean
     while(systemStart){
         printSystemStart()
         val pin = readLine().toString()
@@ -151,7 +151,9 @@ fun withdrawSystem (pin: String){
             }
             if(isValid && withdrawing){
                 isValid = isNumber(value, "Please make sure the amount is a number.")
-
+                if(isValid){
+                    isValid = !amountIsLessOrZero(value)
+                }
                 if(isValid) {
                     val money = value.toDouble()
                     for (customer in customerList) {
@@ -237,8 +239,11 @@ fun sendMoneySystem (pin: String){
                         sending = false
                     }
                 }
-                if(valueIsValid){
+                if(valueIsValid && sending){
                     valueIsValid = isNumber(amount, "Please make sure the amount is number.")
+                }
+                if(valueIsValid && sending){
+                    valueIsValid = !amountIsLessOrZero(amount)
                 }
                 if(valueIsValid && sending){
                     valueIsValid = !checkIfAmountIsGreater(pin, amount.toDouble())
@@ -304,6 +309,7 @@ fun sendMoneySystem (pin: String){
 /*
 ====================================================VALIDATION====================================================
  */
+// PIN VALIDITY FULL CHECK UP
 fun checkPinValidity (pin:String):Boolean{
     //check if pin is not empty
     var isValid: Boolean = false;
@@ -313,6 +319,7 @@ fun checkPinValidity (pin:String):Boolean{
     }
     return isValid
 }
+//GET CUSTOMER DATA TO CHECK IF IT REALLY EXIST
 fun getCustomerData (pin: String): Customer{
     var result =  Customer("", "", "", 0.0)
     for(customer in customerList){
@@ -322,6 +329,7 @@ fun getCustomerData (pin: String): Customer{
     }
     return result
 }
+//CHECK INPUT IF IT IS EMPTY
 fun isNotEmpty(value: String, emptyPrompt:String):Boolean{
     if(value == ""
         || value.isNullOrBlank()
@@ -331,6 +339,7 @@ fun isNotEmpty(value: String, emptyPrompt:String):Boolean{
     }
     return true
 }
+//CHECK INPUT IF IT IS A NUMBER
 fun isNumber(value: String, invalidPrompt: String):Boolean{
     val numberRegex = "-?\\d+(\\.\\d+)?".toRegex()
     if(!value.matches(numberRegex)){
@@ -339,6 +348,7 @@ fun isNumber(value: String, invalidPrompt: String):Boolean{
     }
     return true;
 }
+//CHECK PIN INPUT IF IT IS FOUR CHARACTERS LONG
 fun isFourCharactersLong(pin:String, invalidPrompt: String):Boolean{
     if(pin.length != 4){
         println(invalidPrompt)
@@ -346,6 +356,7 @@ fun isFourCharactersLong(pin:String, invalidPrompt: String):Boolean{
     }
     return true
 }
+//CHECK PIN IF IT IS ALL DIGITS
 fun isDigits(pin:String, invalidPrompt: String):Boolean{
     val pattern: Regex= "^[0-9]+$".toRegex()
     if(!pattern.matches(pin)){
@@ -354,6 +365,7 @@ fun isDigits(pin:String, invalidPrompt: String):Boolean{
     }
     return true
 }
+//CHECK AMOUNT VERSUS BALANCE OF THE CURRENT LOGGED IN
 fun checkIfAmountIsGreater(pin:String, amount:Double):Boolean{
     for(customer in customerList){
         if(customer.pin == pin){
@@ -366,7 +378,7 @@ fun checkIfAmountIsGreater(pin:String, amount:Double):Boolean{
     return false
 }
 
-//for sending
+//RUNS IF PROCEED TO SENDING
 fun sendProceed(pin:String, money: Double, name:String, accountNumber:String){
     for(customer in customerList){
         // deduct from sender
@@ -392,8 +404,17 @@ fun toCurrency(value: String): String {
     var myNumber = value.toDouble()
     return formatter.format(myNumber)
 }
+
+fun amountIsLessOrZero(value:String):Boolean{
+    if(value.toDouble() <= 0){
+        println("Amount cannot be less than or equal to zero.")
+        return true
+    }
+    return false
+}
 /*
 ====================================================PRINT FUNCTIONS====================================================
+                THIS ARE JUST FOR PRINTS NOTHING FABULOUS
  */
 fun printIntro(){
     println("|============================================================================================|")
