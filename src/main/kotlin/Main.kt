@@ -1,6 +1,7 @@
 import java.text.DecimalFormat
 import java.text.NumberFormat
 
+//DATA CLASS FOR CUSTOMER
 data class Customer(
     var name: String,
     var accountNumber: String,
@@ -405,6 +406,7 @@ fun toCurrency(value: String): String {
     return formatter.format(myNumber)
 }
 
+//CHECK IF AMOUNT IS LESS OR GREATER THAN 0
 fun amountIsLessOrZero(value:String):Boolean{
     if(value.toDouble() <= 0){
         println("Amount cannot be less than or equal to zero.")
